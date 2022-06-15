@@ -1,5 +1,5 @@
-use rusqlite::{named_params, Connection};
-pub use rusqlite::Result;
+use rusqlite::{named_params, Connection, Result};
+use std::fmt;
 
 pub struct Notebook {
     conn: Connection,
@@ -16,6 +16,12 @@ pub struct NoteRow{
     pub id: i64,
     pub title: String,
     pub text: String,
+}
+
+impl fmt::Display for NoteRow{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:1}\t| {:2}\n\t|\t{:3}", self.id, self.title, self.text)
+    }
 }
 
 impl Notebook {
@@ -68,6 +74,15 @@ impl Notebook {
             })?
             .collect();
         x
+    }
+
+    pub fn print_all_notes(&self) -> Result<()>{
+        let notes = self.get_all_notes()?;
+        println!("id\t| Title\n\t|\tText");
+        for note_row in notes{
+            println!("{:}", note_row);
+        }
+        Ok(())
     }
 
     //returns how many notes were updated
